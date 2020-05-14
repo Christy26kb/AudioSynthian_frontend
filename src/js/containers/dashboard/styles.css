@@ -1,0 +1,8 @@
+.options {
+  border: 1px solid #e5e2e2;
+  border-radius: 5px;
+}
+
+.list-item:hover {
+  background-color: #f2f2f2;
+}
