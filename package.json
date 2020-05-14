@@ -97,8 +97,5 @@
     "testPathIgnorePatterns": [
       "/node_modules/"
     ]
-  },
-  "pre-commit": [
-    "eslint"
-  ]
+  }
 }
