@@ -143,8 +143,16 @@ class Preferences extends React.Component {
 
   onVoiceAuthentication = () => {
     const { recorder } = this.state;
-    if (!recorder) getMediaStream(this.processMediaStream);
-    else recorder.stop();
+    if (!recorder) {
+      const audiostreamOptions = {
+        audio: {
+          sampleRate: 48000,
+          channelCount: 2,
+          volume: 1.0
+        }
+      };
+      getMediaStream(this.processMediaStream, audiostreamOptions);
+    } else recorder.stop();
   };
 
   renderCandidateLogin = () => {

@@ -1,13 +1,16 @@
 import { all, takeLatest } from 'redux-saga/effects';
 import { fetchCurrentUser } from './app';
-import { candidateActionLogin, fetchCandidates, deleteCandidate } from '../containers/candidates/sagas';
+import { candidateActionLogin, candidateSignup, fetchCandidates,
+  deleteCandidate } from '../containers/candidates/sagas';
 import { createQuestion, fetchQuestions, updateQuestion, deleteQuestion,
   createQuestionSet, fetchQuestionSets, updateQuestionSet, deleteQuestionSet } from '../containers/dashboard/sagas';
+import { processExamResults } from '../containers/exam/sagas';
 
 const sagas = [
   // App
   [takeLatest, 'CURRENT_USER:FETCH', fetchCurrentUser],
   // Candidates
+  [takeLatest, 'CANDIDATE:SIGNUP', candidateSignup],
   [takeLatest, 'CANDIDATE_ACTION:LOGIN', candidateActionLogin],
   [takeLatest, 'CANDIDATES:FETCH', fetchCandidates],
   [takeLatest, 'CANDIDATE:DELETE', deleteCandidate],
@@ -20,7 +23,9 @@ const sagas = [
   [takeLatest, 'QUESTION_SETS:FETCH', fetchQuestionSets],
   [takeLatest, 'QUESTION_SET:CREATE', createQuestionSet],
   [takeLatest, 'QUESTION_SET:UPDATE', updateQuestionSet],
-  [takeLatest, 'QUESTION_SET:DELETE', deleteQuestionSet]
+  [takeLatest, 'QUESTION_SET:DELETE', deleteQuestionSet],
+  // Exam
+  [takeLatest, 'EXAM:COMPLETE', processExamResults]
 ];
 
 function* rootSaga() {

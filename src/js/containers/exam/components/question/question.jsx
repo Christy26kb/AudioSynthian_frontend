@@ -8,12 +8,13 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 const Question = (props) => {
-  const { questions, questionFields, onSwitchQuestions, updateCandidateAnswer, userInteractionMode } = props;
+  const { questions, questionFields, onSwitchQuestions, updateCandidateAnswer, userInteractionMode,
+    currentUser, examConfigs, emailConfigs, onExamComplete } = props;
   const defaultRecognizerResult = { transcript: '', confidence: '' };
   const [speechRecognizerResult, setSpeechRecognizerResult] = useState(defaultRecognizerResult);
   const [speechRecognizer, setSpeechRecognizer] = useState(null);
   const [speechRecognizerError, setSpeechRecognizerError] = useState(null);
-  const [candidateAnswerKey, setCandidateAnswerKey] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
   const [isExamComplete, setExamComplete] = useState(false);
 
   // eslint-disable-next-line arrow-body-style
@@ -21,7 +22,7 @@ const Question = (props) => {
     // TODO: Need to handle unmount case to clear or stop speech sythesis and recognition if running.
     return () => {
       // To reroute to preferences when reloaded.
-      props.history.push('/preferences');
+      // props.history.push('/preferences');
     };
   }, []);
 
@@ -35,7 +36,6 @@ const Question = (props) => {
         const questionString = constructQuestionText(questionFields);
         onStartSpeechSythesis(questionString, onCompleteSpeechSynthesis);
       }
-      setCandidateAnswerKey('');
     }
   }, [questionFields]);
 
@@ -117,7 +117,8 @@ const Question = (props) => {
       const extractedAnswerKey = updatedResultString.substring(7, updatedResultString.length);
       const isOptionsMatch = questionFields.options.some(item => item.option_key === extractedAnswerKey);
       if (isOptionsMatch) {
-        setCandidateAnswerKey(extractedAnswerKey);
+        // Setting data to exam configs.
+        updateCandidateAnswer(questionFields.id, extractedAnswerKey);
         const notificationData = {
           type: 'success',
           title: 'Success',
@@ -125,8 +126,6 @@ const Question = (props) => {
         };
         showNotification(notificationData);
         setSpeechRecognizer(null);
-        // Setting data to exam configs.
-        updateCandidateAnswer(questionFields.id, extractedAnswerKey);
 
         // Successfully registered answer and moving to next question, after propmting the user.
         // TODO: Need to swicth b/w questions automatically based on questions data and direction.
@@ -209,6 +208,41 @@ const Question = (props) => {
     </div>
   );
 
+  const getCandidateAnswer = () => {
+    let answer = '';
+    if (questionFields && questionFields.id) {
+      const candidateAnswer = examConfigs.result.find(result => result.id === questionFields.id);
+      answer = candidateAnswer && candidateAnswer.value ? candidateAnswer.value : '';
+    }
+    return answer;
+  };
+
+  const submit = () => {
+    if (adminPassword && currentUser.password && adminPassword === currentUser.password) {
+      const score = examConfigs.result.reduce((acc, result) => {
+        const currentQuestion = questions.find(question => question.id === result.id);
+        if (currentQuestion) {
+          const correctAnswer = currentQuestion.answer.trim().toLowerCase();
+          const candidateAnswer = result.value.trim().toLowerCase();
+          if (correctAnswer === candidateAnswer) {
+            // eslint-disable-next-line no-param-reassign
+            acc += 1;
+          }
+        }
+        return acc;
+      }, 0);
+      const data = {
+        ...examConfigs,
+        ...emailConfigs,
+        candidateScore: score,
+        totalScore: questions.length ? questions.length : 0
+      };
+      onExamComplete(data);
+    } else {
+      notification.error({ message: 'Password is invalid' });
+    }
+  };
+
   return (
     <>
       <div className="full-content d-flex flex-column justify-content-between">
@@ -230,10 +264,10 @@ const Question = (props) => {
               name="answer"
               style={{ width: '20%' }}
               placeholder="select an option key"
-              onChange={value => setCandidateAnswerKey(value)}
+              onChange={value => updateCandidateAnswer(questionFields.id, value)}
               optionLabelProp="label"
               // TODO: Use answer key data from store to persist answer while moving b/w the questions.
-              value={candidateAnswerKey || ''}
+              value={getCandidateAnswer() || ''}
             >
               {questionFields.options && questionFields.options.map(option => (
                 <Option key={option.option_key} value={option.option_key} label={option.option_key}>
@@ -293,12 +327,13 @@ const Question = (props) => {
           title="Exam Successfully Completed"
           subTitle="Exam results will be sent to your registered email. Contact your admin for further actions"
           extra={[
-            <Input
+            <Input.Password
               style={{ width: '40%' }}
-              value=""
+              value={adminPassword}
+              onChange={e => setAdminPassword(e.target.value)}
               placeholder="Admin password"
             />,
-            <Button type="primary">
+            <Button type="primary" onClick={submit}>
               Submit
             </Button>
           ]}
@@ -310,11 +345,15 @@ const Question = (props) => {
 
 Question.propTypes = {
   userInteractionMode: PropTypes.string.isRequired,
+  currentUser: PropTypes.shape({}).isRequired,
   history: PropTypes.shape({ push: PropTypes.func }).isRequired,
   questions: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   questionFields: PropTypes.shape({}).isRequired,
+  examConfigs: PropTypes.shape({}).isRequired,
+  emailConfigs: PropTypes.shape({}).isRequired,
   onSwitchQuestions: PropTypes.func.isRequired,
-  updateCandidateAnswer: PropTypes.func.isRequired
+  updateCandidateAnswer: PropTypes.func.isRequired,
+  onExamComplete: PropTypes.func.isRequired
 };
 
 export default withRouter(Question);

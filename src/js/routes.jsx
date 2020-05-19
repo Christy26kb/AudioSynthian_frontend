@@ -8,6 +8,7 @@ export default (
     <Switch>
       <Redirect from="/" to="/login" exact={true} />
       <Route path="/login" component={LoginLayout} exact={true} />
+      <Route path="/candidate_registration" component={LoginLayout} exact={true} />
       {/* Need to add login based routes here */}
       <Route path="*" component={ProtectedLayout} exact={true} />
     </Switch>

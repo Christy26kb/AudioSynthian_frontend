@@ -20,6 +20,11 @@ class Exam extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    this.props.examConfigsReset();
+    this.props.emailConfigsReset();
+  }
+
   getQuestionsFromQuestionSet(questionSetId) {
     const { questionSets, questions } = this.props;
     const selectedQuestionSet = questionSets.find(questionSet => questionSet.id === questionSetId);
@@ -69,7 +74,7 @@ class Exam extends React.Component {
 
   render() {
     const { activeQuestion, questions } = this.state;
-    const { userInteractionMode } = this.props;
+    const { userInteractionMode, currentUser, onExamComplete, examConfigs, emailConfigs } = this.props;
     return (
       <div className="full-content d-flex flex-column align-items-center p-5">
         {activeQuestion && (
@@ -80,6 +85,10 @@ class Exam extends React.Component {
               onSwitchQuestions={this.onSwitchQuestions}
               updateCandidateAnswer={this.updateCandidateAnswer}
               userInteractionMode={userInteractionMode}
+              currentUser={currentUser}
+              onExamComplete={onExamComplete}
+              examConfigs={examConfigs}
+              emailConfigs={emailConfigs}
             />
           </div>)}
       </div>
@@ -93,10 +102,15 @@ Exam.contextTypes = {
 
 Exam.propTypes = {
   userInteractionMode: PropTypes.string.isRequired,
+  currentUser: PropTypes.shape({}).isRequired,
   questions: PropTypes.arrayOf(PropTypes.shape({})),
   questionSets: PropTypes.arrayOf(PropTypes.shape({})),
   examConfigs: PropTypes.shape({}).isRequired,
-  updateExamConfigs: PropTypes.func.isRequired
+  emailConfigs: PropTypes.shape({}).isRequired,
+  updateExamConfigs: PropTypes.func.isRequired,
+  onExamComplete: PropTypes.func.isRequired,
+  examConfigsReset: PropTypes.func.isRequired,
+  emailConfigsReset: PropTypes.func.isRequired
 };
 
 Exam.defaultProps = {
