@@ -152,7 +152,10 @@ class Preferences extends React.Component {
         }
       };
       getMediaStream(this.processMediaStream, audiostreamOptions);
-    } else recorder.stop();
+    } else {
+      recorder.stop();
+      this.props.onCandidateVoiceLogin();
+    }
   };
 
   renderCandidateLogin = () => {
@@ -295,7 +298,8 @@ Preferences.propTypes = {
   onUpdateExamConfigs: PropTypes.func.isRequired,
   onUpdateEmailConfigs: PropTypes.func.isRequired,
   onInteractionModeChange: PropTypes.func.isRequired,
-  onCandidateActionLogin: PropTypes.func.isRequired
+  onCandidateActionLogin: PropTypes.func.isRequired,
+  onCandidateVoiceLogin: PropTypes.func.isRequired
 };
 
 Preferences.defaultProps = {

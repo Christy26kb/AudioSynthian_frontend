@@ -1,7 +1,7 @@
 import { all, takeLatest } from 'redux-saga/effects';
 import { fetchCurrentUser } from './app';
 import { candidateActionLogin, candidateSignup, fetchCandidates,
-  deleteCandidate } from '../containers/candidates/sagas';
+  deleteCandidate, candidateVoiceLogin } from '../containers/candidates/sagas';
 import { createQuestion, fetchQuestions, updateQuestion, deleteQuestion,
   createQuestionSet, fetchQuestionSets, updateQuestionSet, deleteQuestionSet } from '../containers/dashboard/sagas';
 import { processExamResults } from '../containers/exam/sagas';
@@ -12,6 +12,7 @@ const sagas = [
   // Candidates
   [takeLatest, 'CANDIDATE:SIGNUP', candidateSignup],
   [takeLatest, 'CANDIDATE_ACTION:LOGIN', candidateActionLogin],
+  [takeLatest, 'CANDIDATE_VOICE:LOGIN', candidateVoiceLogin],
   [takeLatest, 'CANDIDATES:FETCH', fetchCandidates],
   [takeLatest, 'CANDIDATE:DELETE', deleteCandidate],
   // Questions

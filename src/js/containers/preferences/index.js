@@ -26,6 +26,9 @@ const mapDispatchToProps = dispatch => ({
   },
   onCandidateActionLogin: (email, password) => {
     dispatch({ type: 'CANDIDATE_ACTION:LOGIN', email, password });
+  },
+  onCandidateVoiceLogin: () => {
+    dispatch({ type: 'CANDIDATE_VOICE:LOGIN' });
   }
 });
 

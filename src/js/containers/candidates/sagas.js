@@ -79,6 +79,41 @@ export function* candidateActionLogin(action) {
   }
 }
 
+
+export function* candidateVoiceLogin() {
+  const request = registry.get('request');
+
+  try {
+    const data = { type: 'candidate_voice' };
+    const url = '/login';
+    const requestArgs = {
+      API_CALL: { method: 'POST', data },
+      url,
+      isAuthRequired: false
+    };
+    const response = yield request(requestArgs);
+    switch (response.status) {
+      case 200: {
+        const name = response.data && response.data.result && response.data.result.name;
+        notification.success({
+          message: 'Success',
+          description: `Welcome ${name || ''}`,
+          Duraton: 100
+        });
+        yield put(replaceRouter('/exam'));
+        break;
+      }
+      case 400:
+        notification.error({ message: response.message });
+        break;
+      default:
+        break;
+    }
+  } catch (err) {
+    registry.get('logger').error(err);
+  }
+}
+
 export function* fetchCandidates() {
   const request = registry.get('request');
 
