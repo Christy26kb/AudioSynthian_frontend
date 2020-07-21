@@ -9,12 +9,12 @@ const { Option } = Select;
 
 const Question = (props) => {
   const { questions, questionFields, onSwitchQuestions, updateCandidateAnswer, userInteractionMode,
-    currentUser, examConfigs, emailConfigs, onExamComplete } = props;
+    examConfigs, emailConfigs, onExamComplete } = props;
   const defaultRecognizerResult = { transcript: '', confidence: '' };
   const [speechRecognizerResult, setSpeechRecognizerResult] = useState(defaultRecognizerResult);
   const [speechRecognizer, setSpeechRecognizer] = useState(null);
   const [speechRecognizerError, setSpeechRecognizerError] = useState(null);
-  const [adminPassword, setAdminPassword] = useState('');
+  // const [adminPassword, setAdminPassword] = useState('');
   const [isExamComplete, setExamComplete] = useState(false);
 
   // eslint-disable-next-line arrow-body-style
@@ -218,29 +218,25 @@ const Question = (props) => {
   };
 
   const submit = () => {
-    if (adminPassword && currentUser.password && adminPassword === currentUser.password) {
-      const score = examConfigs.result.reduce((acc, result) => {
-        const currentQuestion = questions.find(question => question.id === result.id);
-        if (currentQuestion) {
-          const correctAnswer = currentQuestion.answer.trim().toLowerCase();
-          const candidateAnswer = result.value.trim().toLowerCase();
-          if (correctAnswer === candidateAnswer) {
-            // eslint-disable-next-line no-param-reassign
-            acc += 1;
-          }
+    const score = examConfigs.result.reduce((acc, result) => {
+      const currentQuestion = questions.find(question => question.id === result.id);
+      if (currentQuestion) {
+        const correctAnswer = currentQuestion.answer.trim().toLowerCase();
+        const candidateAnswer = result.value.trim().toLowerCase();
+        if (correctAnswer === candidateAnswer) {
+          // eslint-disable-next-line no-param-reassign
+          acc += 1;
         }
-        return acc;
-      }, 0);
-      const data = {
-        ...examConfigs,
-        ...emailConfigs,
-        candidateScore: score,
-        totalScore: questions.length ? questions.length : 0
-      };
-      onExamComplete(data);
-    } else {
-      notification.error({ message: 'Password is invalid' });
-    }
+      }
+      return acc;
+    }, 0);
+    const data = {
+      ...examConfigs,
+      ...emailConfigs,
+      candidateScore: score,
+      totalScore: questions.length ? questions.length : 0
+    };
+    onExamComplete(data);
   };
 
   return (
@@ -326,18 +322,19 @@ const Question = (props) => {
           status="success"
           title="Exam Successfully Completed"
           subTitle="Exam results will be sent to your registered email. Contact your admin for further actions"
-          extra={[
-            <Input.Password
-              style={{ width: '40%' }}
-              value={adminPassword}
-              onChange={e => setAdminPassword(e.target.value)}
-              placeholder="Admin password"
-            />,
-            <Button type="primary" onClick={submit}>
-              Submit
-            </Button>
-          ]}
+          // extra={[
+          //   <Input.Password
+          //     style={{ width: '40%' }}
+          //     value={adminPassword}
+          //     onChange={e => setAdminPassword(e.target.value)}
+          //     placeholder="Admin password"
+          //   />,
+          //   <Button type="primary" onClick={submit}>
+          //     Submit
+          //   </Button>
+          // ]}
         />
+        {isExamComplete && submit()}
       </Modal>
     </>
   );
